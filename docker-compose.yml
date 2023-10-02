@@ -1,0 +1,35 @@
+   version: "3"
+
+   services:
+     redmine:
+       container_name: redmine
+       image: redmine
+       restart: always
+       ports:
+         - 8081:3000
+       environment:
+         REDMINE_DB_MYSQL: redmine-db
+         REDMINE_DB_PASSWORD: redminepass
+       volumes:
+         - ./data/plugins:/usr/src/redmine/plugins
+         - ./data/themes:/usr/src/redmine/public/themes
+
+     redmine-db:
+       image: mysql:5.7
+       container_name: redmine-db
+       restart: always
+       environment:
+         MYSQL_ROOT_PASSWORD: redminepass
+         MYSQL_DATABASE: redmine
+       volumes:
+         - ./data/db:/var/lib/mysql
+       command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
+
+     ngrok:
+       container_name: ngrok
+       image: wernight/ngrok:latest
+       ports:
+         - ${NGROK_PORT:-4040}:4040
+       environment:
+         NGROK_PORT: redmine:3000
+         NGROK_AUTH:
